@@ -10,17 +10,20 @@ import discord.test.eventListener.BoopEvent;
 import discord.test.eventListener.GuildMessageEvent;
 
 import javax.security.auth.login.LoginException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Bot {
-	private final static String token = "NzU2NTMwMDI0MzQ5MzAyODI0.X2TLfQ.QO142LvbMcH8ReA-oK26lD2U7kA";
 	public final static String prefix = "!";
 	
-	public Bot() throws LoginException, InterruptedException {
-	JDA jda = JDABuilder.createDefault(token).build();
-	jda.addEventListener(new GuildMessageEvent(), new PrivateEvent(), new BoopEvent());
-	jda.getPresence().setActivity(Activity.listening("your commands"));
-	jda.awaitReady();
+	public Bot() throws LoginException, InterruptedException, FileNotFoundException {
+		File file = new File("token.txt");
+		Scanner scanner = new Scanner(file);
+		JDA jda = JDABuilder.createDefault(scanner.next()).build();
+		jda.addEventListener(new GuildMessageEvent(), new PrivateEvent(), new BoopEvent());
+		jda.getPresence().setActivity(Activity.listening("your commands"));
+		jda.awaitReady();
 	}
 	
 }
