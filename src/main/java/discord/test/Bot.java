@@ -11,16 +11,21 @@ import discord.test.eventListener.GuildMessageEvent;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Bot {
 	public final static String prefix = "!";
+	JDA jda;
 	
-	public Bot() throws LoginException, InterruptedException, FileNotFoundException {
-		File file = new File("token.txt");
-		Scanner scanner = new Scanner(file);
-		JDA jda = JDABuilder.createDefault(scanner.next()).build();
+	public Bot(String token) throws LoginException, InterruptedException{
+		
+		jda = JDABuilder.createDefault(token).build();
+		start();
+	}
+	
+	private void start() throws InterruptedException {
 		jda.addEventListener(new GuildMessageEvent(), new PrivateEvent(), new BoopEvent());
 		jda.getPresence().setActivity(Activity.listening("your commands"));
 		jda.awaitReady();
