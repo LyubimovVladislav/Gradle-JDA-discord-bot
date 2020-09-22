@@ -30,5 +30,4 @@ public class Bot {
 		jda.getPresence().setActivity(Activity.listening("your commands"));
 		jda.awaitReady();
 	}
-	
 }

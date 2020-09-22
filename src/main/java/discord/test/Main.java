@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Main {
 	public static void main(String[] args) throws LoginException, InterruptedException {
 		Scanner scanner;
-		File file = new File(".\\src\\main\\java\\discord\\test\\token.txt");
+		File file = new File(".\\token.txt");
 		Bot bot;
 		try {
 			scanner = new Scanner(new FileInputStream(file));
