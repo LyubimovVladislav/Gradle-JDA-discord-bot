@@ -11,15 +11,20 @@ import java.util.Scanner;
 
 public class Main {
 	public static void main(String[] args) throws LoginException, InterruptedException {
-		Scanner scanner;
-		File file = new File(".\\token.txt");
-		Bot bot;
-		try {
-			scanner = new Scanner(new FileInputStream(file));
-			bot = new Bot(scanner.nextLine());
-		} catch (FileNotFoundException | NoSuchElementException e) {
-			System.err.println(Arrays.toString(e.getStackTrace()));
-			System.exit(0);
-		}
+//		Scanner scanner;
+//		File file = new File(".\\token.txt");
+//		Bot bot;
+//		try {
+//			scanner = new Scanner(new FileInputStream(file));
+//			bot = new Bot(scanner.nextLine());
+//		} catch (FileNotFoundException | NoSuchElementException e) {
+//			System.err.println(Arrays.toString(e.getStackTrace()));
+//			System.exit(0);
+//		}
+		
+//		or this
+		
+		String token="your token here";
+		new Bot(token);
 	}
 }
