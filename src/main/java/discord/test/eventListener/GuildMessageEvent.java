@@ -209,6 +209,12 @@ public class GuildMessageEvent extends ListenerAdapter {
 				case "hallo":
 					channel.sendMessage("Hallo, <@" + caller.getUser().getId() + ">").queue();
 					break;
+				case "uwu":
+					channel.sendMessage("UwU").queue();
+					break;
+				case "owo":
+					channel.sendMessage("OwO").queue();
+					break;
 				default:
 					break;
 			}
