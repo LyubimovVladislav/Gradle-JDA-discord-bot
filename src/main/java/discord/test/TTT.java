@@ -74,16 +74,18 @@ public class TTT {
 			while (i<3){
 				if(hMap[i][0]==hMap[i][1]&&hMap[i][0]==hMap[i][2]) {
 					winner = hMap[i][0];
-					return winner;
+					break;
 				}
 				if(hMap[0][j]==hMap[1][j]&&hMap[0][j]==hMap[2][j]) {
 					winner = hMap[0][j];
-					return winner;
+					break;
 				}
 				i++;
 				j++;
 			}
 		}
+		if (winner!=0)
+			return winner;
 		boolean hasAvailableMoves=false;
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
