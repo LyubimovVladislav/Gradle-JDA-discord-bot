@@ -74,11 +74,11 @@ public class TTT {
 			while (i<3){
 				if(hMap[i][0]==hMap[i][1]&&hMap[i][0]==hMap[i][2]) {
 					winner = hMap[i][0];
-					break;
+					return winner;
 				}
 				if(hMap[0][j]==hMap[1][j]&&hMap[0][j]==hMap[2][j]) {
 					winner = hMap[0][j];
-					break;
+					return winner;
 				}
 				i++;
 				j++;
