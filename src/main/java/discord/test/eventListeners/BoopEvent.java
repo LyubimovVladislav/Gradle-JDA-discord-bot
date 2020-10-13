@@ -1,14 +1,9 @@
-package discord.test.eventListener;
+package discord.test.eventListeners;
 
 
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.internal.entities.ReceivedMessage;
-import org.w3c.dom.events.Event;
 
 import javax.annotation.Nonnull;
 

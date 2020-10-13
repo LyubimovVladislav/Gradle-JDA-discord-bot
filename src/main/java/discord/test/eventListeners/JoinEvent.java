@@ -1,19 +1,12 @@
-package discord.test.eventListener;
+package discord.test.eventListeners;
 
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.GenericEvent;
-import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
-
 public class JoinEvent extends ListenerAdapter {
-	public void onGuildMemberJoin(GuildMemberJoinEvent event){
-		System.out.println("yooooss");
-	}
+//	public void onGuildMemberJoin(GuildMemberJoinEvent event){
+//		System.out.println("yooooss");
+//	}
 //		System.out.println(event.getGuild().getRolesByName("Member", true).toString());
 //		event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRolesByName("Member", true).get(1)).queue();
 }

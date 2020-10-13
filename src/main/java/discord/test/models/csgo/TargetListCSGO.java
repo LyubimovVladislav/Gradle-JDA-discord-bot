@@ -1,4 +1,4 @@
-package discord.test;
+package discord.test.models.csgo;
 
 import java.util.LinkedList;
 import java.util.Optional;
@@ -7,7 +7,7 @@ public class TargetListCSGO {
 	private LinkedList<TargetCSGO> targets;
 
 	public TargetListCSGO(TargetCSGO target){
-		this.targets = new LinkedList<TargetCSGO>();
+		this.targets = new LinkedList<>();
 		this.targets.add(target);
 	}
 	

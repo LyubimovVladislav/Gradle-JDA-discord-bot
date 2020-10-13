@@ -1,4 +1,4 @@
-package discord.test;
+package discord.test.models;
 
 public class Players {
 	private String player1;

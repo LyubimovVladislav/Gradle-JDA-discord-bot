@@ -1,4 +1,4 @@
-package discord.test;
+package discord.test.models.ttt;
 
 import java.util.stream.Stream;
 
@@ -26,7 +26,7 @@ public class TTT {
 	}
 	
 	public boolean makeATurn(String player, int position) {
-		if (!player.equals(currentPl))//TODO: make it better
+		if (!player.equals(currentPl))
 			return false;
 		if (position <= 3) {
 			position-=1;

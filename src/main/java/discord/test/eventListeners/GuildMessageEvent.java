@@ -1,17 +1,19 @@
-package discord.test.eventListener;
+package discord.test.eventListeners;
 
 import discord.test.*;
+import discord.test.models.csgo.ContainerCSGO;
+import discord.test.models.csgo.TargetCSGO;
+import discord.test.models.csgo.TargetListCSGO;
+import discord.test.models.Players;
+import discord.test.models.ttt.TTT;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import discord.test.*;
 
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class GuildMessageEvent extends ListenerAdapter {
@@ -62,6 +64,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 				case "!8-ball":
 					channel.sendMessage(caller.getAsMention() + ", " + answers[(int) (Math.random() * answers.length)]).queue();
 
+//              TODO: try multithreading
 
 //		    	case "!rainbow":
 //		    		try {

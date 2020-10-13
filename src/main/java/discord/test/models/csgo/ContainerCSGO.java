@@ -1,4 +1,4 @@
-package discord.test;
+package discord.test.models.csgo;
 
 public class ContainerCSGO {
 	private String message;

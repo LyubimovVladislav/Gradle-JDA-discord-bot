@@ -1,4 +1,4 @@
-package discord.test.eventListener;
+package discord.test.eventListeners;
 
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

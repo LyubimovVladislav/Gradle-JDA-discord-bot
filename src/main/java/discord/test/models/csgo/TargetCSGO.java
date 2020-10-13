@@ -1,4 +1,4 @@
-package discord.test;
+package discord.test.models.csgo;
 
 import java.util.Random;
 
