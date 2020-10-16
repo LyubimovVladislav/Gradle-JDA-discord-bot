@@ -5,6 +5,9 @@ import discord.test.models.csgo.ContainerCSGO;
 import discord.test.models.csgo.TargetCSGO;
 import discord.test.models.csgo.TargetListCSGO;
 import discord.test.models.Players;
+import discord.test.models.naval_battle.Field;
+import discord.test.models.naval_battle.NBStringConverter;
+import discord.test.models.naval_battle.Point;
 import discord.test.models.ttt.TTT;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -18,9 +21,12 @@ import java.util.*;
 
 public class GuildMessageEvent extends ListenerAdapter {
 	private final HashMap<String, Member> ticTacToePL = new HashMap<>();
+	private final HashMap<String, Member> navalBattlePL = new HashMap<>();
 	private final HashMap<Member, TargetListCSGO> csgoHash = new HashMap<>();
 	
 	private final HashMap<Players, TTT> startedTTT = new HashMap<>();
+	private final HashMap<Players, Field> startedNB = new HashMap<>();
+	
 	
 	private TextChannel channel;
 	private Member caller;
@@ -33,7 +39,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 	
 	public void onGuildMessageReceived(GuildMessageReceivedEvent eventGuild) {
 		caller = eventGuild.getMember();
-		channel= eventGuild.getChannel();
+		channel = eventGuild.getChannel();
 		
 		assert caller != null;
 		if (caller.getUser().isBot())
@@ -51,15 +57,18 @@ public class GuildMessageEvent extends ListenerAdapter {
 				case "!ttt":
 					handleTTT(message);
 					break;
+				case "!nb":
+					handleNB(message);
+					break;
 				case "!accept":
-					handleAccept(eventGuild);
+					handleAccept(message);
 					break;
 				case "!halp":
 					channel.sendMessage(buildEmbed("!halp - get all commands\n!ttt - play a game of Tic-Tac-Toe with your friend\n!csgo - Test your luck with spray in csgo\n!8-ball if you want to know the answer!", Color.blue)).queue();
 					break;
 				
 				case "!csgo":
-					handleCsgo(message,eventGuild);
+					handleCsgo(message);
 					break;
 				case "!8-ball":
 					channel.sendMessage(caller.getAsMention() + ", " + answers[(int) (Math.random() * answers.length)]).queue();
@@ -83,6 +92,11 @@ public class GuildMessageEvent extends ListenerAdapter {
 				default:
 					break;
 			}
+			
+		} else if (!startedNB.isEmpty() && message[0].matches("[1-9]") && message[1].matches("[1-9]")) {
+			String str = resumeNB(Integer.parseInt(message[0]), Integer.parseInt(message[1]));
+			if (str != null)
+				channel.sendMessage(buildEmbed(str, Color.RED)).queue();
 		} else if (message.length >= 2)
 			switch (message[0] + " " + message[1]) {
 				case "boop beep":
@@ -97,7 +111,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 					break;
 			}
 		else if (!startedTTT.isEmpty() && message[0].matches("[1-9]")) {
-			String str = resumeGame(Integer.parseInt(message[0]), caller.getId());
+			String str = resumeTTT(Integer.parseInt(message[0]), caller.getId());
 			if (str != null)
 				channel.sendMessage(buildEmbed(str, Color.RED)).queue();
 			
@@ -119,36 +133,37 @@ public class GuildMessageEvent extends ListenerAdapter {
 		
 	}
 	
-	public void playTTT(String player1, String player2, GuildMessageReceivedEvent e) {
+	public void playTTT(String player1, String player2) {
 		ticTacToePL.remove(player2);
 		Players players = new Players(player1, player2);
-		TTT ttt = new TTT(player1, player2);
+		TTT ttt = new TTT(players);
 		startedTTT.put(players, ttt);
-		e.getChannel().sendMessage(buildEmbed(ttt.getGraphicalMap().append("\n<@").append(ttt.getCurrentPl()).append("> turn").toString(), Color.red)).complete();
+		channel.sendMessage(buildEmbed(ttt.getGraphicalMap().append("\n<@").append(ttt.getCurrentPl()).append("> turn").toString(), Color.red)).complete();
 	}
 	
-	public void playCSGO(GuildMessageReceivedEvent e, String target) {
+	public void playCSGO(String target) {
+		//broken af cuz was designed for more functions than needed
 		TargetListCSGO obj;
-		if (csgoHash.containsKey(e.getMember())) {
-			obj = csgoHash.get(e.getMember());
+		if (csgoHash.containsKey(caller)) {
+			obj = csgoHash.get(caller);
 		} else {
 			obj = new TargetListCSGO(new TargetCSGO(target));
-			csgoHash.put(e.getMember(), obj);
+			csgoHash.put(caller, obj);
 		}
 		ContainerCSGO container = obj.makeHitMessage(target);
 //		EmbedBuilder msg = new EmbedBuilder();
 //		msg.setColor(Color.RED);
 //		msg.setDescription(cont.getMessage());
-		e.getChannel().sendMessage(buildEmbed(container.getMessage(), Color.RED)).queue();
+		channel.sendMessage(buildEmbed(container.getMessage(), Color.RED)).queue();
 //		e.getChannel().sendMessage(cont.getMessage()).queue();
 
 
 //		if (container.getIsDead())
 //			csgoHash.get(e.getMember()).deleteTarget(target);
-		csgoHash.get(e.getMember()).deleteTarget(target);
+		csgoHash.get(caller).deleteTarget(target);
 	}
 	
-	public String resumeGame(int pos, String player) {
+	public String resumeTTT(int pos, String player) {
 		
 		Optional<Map.Entry<Players, TTT>> game = startedTTT.entrySet().stream().filter(entry -> entry.getKey().getPlayer1().equals(player) || entry.getKey().getPlayer2().equals(player)).findAny();
 		if (game.isEmpty())
@@ -163,9 +178,9 @@ public class GuildMessageEvent extends ListenerAdapter {
 		if ((winner = ttt.isGameFinished()) > 0) {
 			str.append("\nGame ended with result: ");
 			if (winner == 1)
-				str.append("<@").append(ttt.getPlayer1()).append("> wins!");
+				str.append("<@").append(ttt.getPlayers().getPlayer1()).append("> wins!");
 			else if (winner == 2)
-				str.append("<@").append(ttt.getPlayer2()).append("> wins!");
+				str.append("<@").append(ttt.getPlayers().getPlayer2()).append("> wins!");
 			else
 				str.append("Tie");
 			startedTTT.remove(pl);
@@ -197,9 +212,9 @@ public class GuildMessageEvent extends ListenerAdapter {
 //
 //		}
 //	}
-
 	
-	private void handleTTT(String[] message){
+	
+	private void handleTTT(String[] message) {
 		if (message.length <= 1)
 			channel.sendMessage(buildEmbed("Usage: !ttt [start/stop] {@PingYourOpponentIfStart} \nStart the game of Tic Tac Toe with your friend!\nStop the game to cancel your invite.", Color.blue)).queue();
 		else if (message[1].equals("start")) {
@@ -234,7 +249,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 //								channel.sendMessage(buildEmbed("I can't find this person on the server",Color.blue)).queue();
 //								break;
 //							}
-				channel.sendMessage(buildEmbed("<@" + player2 + "> was invited to play TicTacToe, type !accept to join!", Color.blue)).queue();
+				channel.sendMessage(buildEmbed("<@" + player2 + "> was invited to play TicTacToe, type !accept ttt to join!", Color.blue)).queue();
 				ticTacToePL.put(player2, caller);
 			}
 			
@@ -252,25 +267,37 @@ public class GuildMessageEvent extends ListenerAdapter {
 			channel.sendMessage("Usage: !ttt [start/stop] {@PingYourOpponentIfStart}\nWarning: You misspelled 2nd argument ").queue();
 	}
 	
-	private void handleAccept(GuildMessageReceivedEvent eventGuild){
-		if (startedTTT.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())))
-			channel.sendMessage("You cant start the game!").queue();
-		else if (ticTacToePL.get(caller.getId()) != null) {
-			channel.sendMessage("Game starts!").queue();
+	private void handleAccept(String[] message) {
+		if (message.length <= 1)
+			return;
+		if (message[1].equals("ttt")) {
+			if (startedTTT.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())))
+				channel.sendMessage("You cant start the game!").queue();
+			else if (ticTacToePL.get(caller.getId()) != null) {
+				channel.sendMessage("Game starts!").queue();
 //						ticTacToePL.remove(caller.getId());
-			playTTT(ticTacToePL.get(caller.getId()).getId(), caller.getId(), eventGuild);
-		} else
-			channel.sendMessage("<@" + caller.getId() + ">, you haven't been invited to any game").queue();
+				playTTT(ticTacToePL.get(caller.getId()).getId(), caller.getId());
+			} else
+				channel.sendMessage("<@" + caller.getId() + ">, you haven't been invited to any game").queue();
+		}
+		if (message[1].equals("nb")) {
+			if (startedNB.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())))
+				channel.sendMessage("You cant start the game!").queue();
+			else if (navalBattlePL.get(caller.getId()) != null) {
+				channel.sendMessage("Game starts!").queue();
+//						ticTacToePL.remove(caller.getId());
+				playNB(navalBattlePL.get(caller.getId()).getId(), caller.getId());
+			} else
+				channel.sendMessage("<@" + caller.getId() + ">, you haven't been invited to any game").queue();
+		}
 	}
 	
-	private void handleCsgo(String[] message, GuildMessageReceivedEvent eventGuild){
-		if (message.length <= 1) {
-			channel.sendMessage(buildEmbed("Usage: !csgo {@PingYourTarget}", Color.BLUE)).queue();
-		} else if (!message[1].replaceAll("[<>!@]*", "").matches("\\d*")) {
-			channel.sendMessage(buildEmbed("Usage: !csgo {@PingYourTarget}\nWarning: You missed/misspelled 2rd argument!", Color.blue)).queue();
-		} else {
-			String target = message[1].replaceAll("[<>!@]*", "");
-			playCSGO(eventGuild, target);
+	private void handleCsgo(String[] message) {
+		if (isBadRequest(message, "csgo"))
+			return;
+		
+		String target = message[1].replaceAll("[<>!@]*", "");
+		playCSGO(target);
 
 //					NumbersCSGO obj;
 //					if (csgoHash.containsKey(caller)) {
@@ -286,6 +313,73 @@ public class GuildMessageEvent extends ListenerAdapter {
 //						break;
 //					}
 //					channel.sendMessage("You received "+obj.getDmg()+" in "+obj.getHit() +" hits").queue();
+	}
+	
+	
+	private void handleNB(String[] message) {
+		if (isBadRequest(message, "nb"))
+			return;
+		
+		String player2 = message[1].replaceAll("[<>!@]*", "");
+		
+		if (startedNB.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId()))) {
+			channel.sendMessage("You cant invite!").queue();
+			return;
 		}
+		
+		if (startedNB.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(player2) || entry.getKey().getPlayer2().equals(player2))) {
+			channel.sendMessage("You cant invite!").queue();
+			return;
+		}
+		if (navalBattlePL.containsKey(player2)) {
+			channel.sendMessage(buildEmbed(caller.getUser().getAsMention() + " you have already sent an invitation to <@" + player2 + ">", Color.blue)).queue();
+			return;
+		}
+		
+		channel.sendMessage(buildEmbed("<@" + player2 + "> was invited to play Naval Battle, type !accept nb to join!", Color.blue)).queue();
+		navalBattlePL.put(player2, caller);
+		
+	}
+	
+	private boolean isBadRequest(String[] message, String command) {
+		if (message.length <= 1) {
+			channel.sendMessage(buildEmbed("Usage: !" + command + " {@PingYourTarget}", Color.BLUE)).queue();
+			return true;
+		} else if (!message[1].replaceAll("[<>!@]*", "").matches("\\d*")) {
+			channel.sendMessage(buildEmbed("Usage: !" + command + " {@PingYourTarget}\nWarning: You missed/misspelled 2rd argument!", Color.blue)).queue();
+			return true;
+		} else
+			return false;
+		
+	}
+	
+	private void playNB(String player1, String player2) {
+		navalBattlePL.remove(player2);
+		Players players = new Players(player1, player2);
+		Field nb = new Field(players);
+		startedNB.put(players, nb);
+		channel.sendMessage(buildEmbed(NBStringConverter.convert(nb.getPlayer1Field(), nb.getPlayer2Field()).append("\nplayer<@").append(nb.getCurrentPlayer()).append("> turn").toString(), Color.red)).complete();
+	}
+	
+	public String resumeNB(int x, int y) {
+		
+		Optional<Map.Entry<Players, Field>> game = startedNB.entrySet().stream().filter(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())).findAny();
+		if (game.isEmpty())
+			return null;
+		
+		Players pl = game.get().getKey();
+		Field nb = game.get().getValue();
+		StringBuilder str = NBStringConverter.convert(nb.getPlayer1Field(), nb.getPlayer2Field());
+		if (!nb.getCurrentPlayer().equals(caller.getId()))
+			str.append("\n<@").append(nb.getCurrentPlayer()).append("> turn");
+		if (!nb.isHit(new Point(x - 1, y - 1))) {
+			return null;
+		}
+		if (nb.gameFinished()) {
+			str.append("\nGame ended with result: ");
+			str.append("<@").append(nb.getCurrentPlayer()).append("> wins!");
+			startedTTT.remove(pl);
+		}
+		return str.toString();
 	}
 }
