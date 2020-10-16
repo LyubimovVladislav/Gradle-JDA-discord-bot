@@ -1,7 +1,5 @@
-package discord.test.eventListeners;
+package discord.test.control;
 
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class MemberLeaveEvent extends ListenerAdapter {

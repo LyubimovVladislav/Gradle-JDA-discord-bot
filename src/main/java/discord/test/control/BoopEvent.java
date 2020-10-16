@@ -1,4 +1,4 @@
-package discord.test.eventListeners;
+package discord.test.control;
 
 
 import net.dv8tion.jda.api.events.GenericEvent;

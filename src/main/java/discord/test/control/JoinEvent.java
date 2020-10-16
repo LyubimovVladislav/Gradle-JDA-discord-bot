@@ -1,6 +1,5 @@
-package discord.test.eventListeners;
+package discord.test.control;
 
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class JoinEvent extends ListenerAdapter {

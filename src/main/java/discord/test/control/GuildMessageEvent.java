@@ -1,4 +1,4 @@
-package discord.test.eventListeners;
+package discord.test.control;
 
 import discord.test.*;
 import discord.test.models.csgo.ContainerCSGO;
@@ -6,10 +6,10 @@ import discord.test.models.csgo.TargetCSGO;
 import discord.test.models.csgo.TargetListCSGO;
 import discord.test.models.Players;
 import discord.test.models.naval_battle.Field;
-import discord.test.models.naval_battle.NBStringConverter;
+import discord.test.view.Builder;
+import discord.test.view.NBStringConverter;
 import discord.test.models.naval_battle.Point;
 import discord.test.models.ttt.TTT;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -64,7 +64,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 					handleAccept(message);
 					break;
 				case "!halp":
-					channel.sendMessage(buildEmbed("!halp - get all commands\n!ttt - play a game of Tic-Tac-Toe with your friend\n!csgo - Test your luck with spray in csgo\n!8-ball if you want to know the answer!", Color.blue)).queue();
+					channel.sendMessage(Builder.buildEmbed("!halp - get all commands\n!ttt - play a game of Tic-Tac-Toe with your friend\n!csgo - Test your luck with spray in csgo\n!8-ball if you want to know the answer!", Color.blue)).queue();
 					break;
 				
 				case "!csgo":
@@ -81,11 +81,11 @@ public class GuildMessageEvent extends ListenerAdapter {
 //		    		} catch (InterruptedException e) {
 //		    			e.printStackTrace();
 //		    		}
-//		    		eventGuild.getGuild().addRoleToMember(caller,eventGuild.getGuild().getRoleById("404033712573906955")).complete();
+//		    		eventGuild.getGuild().addRoleToMember(caller,eventGuild.getGuild().getRoleById("404033712573906955")).queue();();
 //		    		break;
 //		    	case "!stop":
 ////	    			if (caller.getRoles().contains(eventGuild.getGuild().getRoleById("404033712573906955")))
-////	    			eventGuild.getGuild().removeRoleFromMember(caller,  eventGuild.getGuild().getRoleById("404033712573906955")).complete();
+////	    			eventGuild.getGuild().removeRoleFromMember(caller,  eventGuild.getGuild().getRoleById("404033712573906955")).queue();();
 //		    		break;
 //				case "!red":
 //					eventGuild.getGuild().getRoleById("404033712573906955").getManager().setColor(Color.RED).queue();
@@ -93,10 +93,8 @@ public class GuildMessageEvent extends ListenerAdapter {
 					break;
 			}
 			
-		} else if (!startedNB.isEmpty() && message[0].matches("[1-9]") && message[1].matches("[1-9]")) {
-			String str = resumeNB(Integer.parseInt(message[0]), Integer.parseInt(message[1]));
-			if (str != null)
-				channel.sendMessage(buildEmbed(str, Color.RED)).queue();
+		} else if (!startedNB.isEmpty() && message.length >= 2 && message[0].matches("10|[1-9]") && message[1].matches("10|[1-9]")) {
+			resumeNB(Integer.parseInt(message[0]), Integer.parseInt(message[1]));
 		} else if (message.length >= 2)
 			switch (message[0] + " " + message[1]) {
 				case "boop beep":
@@ -113,7 +111,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 		else if (!startedTTT.isEmpty() && message[0].matches("[1-9]")) {
 			String str = resumeTTT(Integer.parseInt(message[0]), caller.getId());
 			if (str != null)
-				channel.sendMessage(buildEmbed(str, Color.RED)).queue();
+				channel.sendMessage(Builder.buildEmbed(str, Color.RED)).queue();
 			
 		} else {
 			switch (message[0]) {
@@ -133,15 +131,15 @@ public class GuildMessageEvent extends ListenerAdapter {
 		
 	}
 	
-	public void playTTT(String player1, String player2) {
+	public void startTTT(String player1, String player2) {
 		ticTacToePL.remove(player2);
 		Players players = new Players(player1, player2);
 		TTT ttt = new TTT(players);
 		startedTTT.put(players, ttt);
-		channel.sendMessage(buildEmbed(ttt.getGraphicalMap().append("\n<@").append(ttt.getCurrentPl()).append("> turn").toString(), Color.red)).complete();
+		channel.sendMessage(Builder.buildEmbed(ttt.getGraphicalMap().append("\n<@").append(ttt.getCurrentPl()).append("> turn").toString(), Color.red)).queue();
 	}
 	
-	public void playCSGO(String target) {
+	public void startCSGO(String target) {
 		//broken af cuz was designed for more functions than needed
 		TargetListCSGO obj;
 		if (csgoHash.containsKey(caller)) {
@@ -154,7 +152,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 //		EmbedBuilder msg = new EmbedBuilder();
 //		msg.setColor(Color.RED);
 //		msg.setDescription(cont.getMessage());
-		channel.sendMessage(buildEmbed(container.getMessage(), Color.RED)).queue();
+		channel.sendMessage(Builder.buildEmbed(container.getMessage(), Color.RED)).queue();
 //		e.getChannel().sendMessage(cont.getMessage()).queue();
 
 
@@ -188,19 +186,13 @@ public class GuildMessageEvent extends ListenerAdapter {
 			str.append("\n<@").append(ttt.getCurrentPl()).append("> turn");
 		return str.toString();
 	}
-	
-	public MessageEmbed buildEmbed(String text, Color color) {
-		EmbedBuilder msg = new EmbedBuilder();
-		msg.setColor(color);
-		msg.setDescription(text);
-		return msg.build();
-	}
+
 
 //	public void changeColours(GuildMessageReceivedEvent event) throws InterruptedException {
 //		List<Color> colors = Arrays.asList(Color.MAGENTA, Color.blue, Color.cyan, Color.GREEN, Color.ORANGE, Color.yellow, Color.white, Color.black);
 //		for(int i=0;i<360;i++){
 //			colors.forEach((c)->{
-//				event.getGuild().getRoleById("754879837843226706").getManager().setColor(c).complete();
+//				event.getGuild().getRoleById("754879837843226706").getManager().setColor(c).queue();();
 //				try {
 //					TimeUnit.SECONDS.sleep(2);
 //				} catch (InterruptedException e) {
@@ -216,32 +208,32 @@ public class GuildMessageEvent extends ListenerAdapter {
 	
 	private void handleTTT(String[] message) {
 		if (message.length <= 1)
-			channel.sendMessage(buildEmbed("Usage: !ttt [start/stop] {@PingYourOpponentIfStart} \nStart the game of Tic Tac Toe with your friend!\nStop the game to cancel your invite.", Color.blue)).queue();
+			channel.sendMessage(Builder.buildEmbed("Usage: !ttt [start/stop] {@PingYourOpponentIfStart} \nStart the game of Tic Tac Toe with your friend!\nStop the game to cancel your invite.", Color.blue)).queue();
 		else if (message[1].equals("start")) {
 			if (message.length <= 2 || !message[2].replaceAll("[<>!@]*", "").matches("\\d*"))
-				channel.sendMessage(buildEmbed("Usage: !ttt [start/stop] {@PingYourOpponentIfStart}\nWarning: You missed/misspelled 3rd argument!", Color.blue)).queue();
+				channel.sendMessage(Builder.buildEmbed("Usage: !ttt [start/stop] {@PingYourOpponentIfStart}\nWarning: You missed/misspelled 3rd argument!", Color.blue)).queue();
 			else {
 				String player2 = message[2].replaceAll("[<>!@]*", "");
-//							User player2 = eventGuild.getJDA().getUserById(message[2].replaceAll("[<>!@]*",""));
-//							Member player2 = eventGuild.getGuild().getMemberById(player2ID);
-//							channel.sendMessage(eventGuild.getGuild().getMembers().toString());
-//							System.out.println(eventGuild.getGuild().getMembers());
-//							Optional<Member> player2opt = eventGuild.getGuild().getMembers().stream().filter((Member member)-> member.getId().equals(player2ID)).findFirst();
-//							Member player2;
-//							if (player2opt.isPresent()){
-//								player2=player2opt.get();
 				
-				if (startedTTT.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId()))) {
-					channel.sendMessage("You cant invite!").queue();
+				if (caller.getId().equals(player2)) {
+					channel.sendMessage("You can't play with yourself!").queue();
 					return;
 				}
 				
-				if (startedTTT.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(player2) || entry.getKey().getPlayer2().equals(player2))) {
-					channel.sendMessage("You cant invite!").queue();
+				if (startedTTT.entrySet().stream().anyMatch(entry -> { String pl1=entry.getKey().getPlayer1(), pl2=entry.getKey().getPlayer2();
+//					entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())
+					return pl1.equals(caller.getId()) || pl2.equals(caller.getId()) || pl1.equals(player2) || pl2.equals(player2);
+				})) {
+					channel.sendMessage("You cant invite because at least one of the players already in TTT game!").queue();
 					return;
 				}
+				
+//				if (startedTTT.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(player2) || entry.getKey().getPlayer2().equals(player2))) {
+//					channel.sendMessage("You cant invite!").queue();
+//					return;
+//				}
 				if (ticTacToePL.containsKey(player2)) {
-					channel.sendMessage(buildEmbed(caller.getUser().getAsMention() + " you have already sent an invitation to <@" + player2 + ">", Color.blue)).queue();
+					channel.sendMessage(Builder.buildEmbed(caller.getUser().getAsMention() + " you have already sent an invitation to <@" + player2 + ">", Color.blue)).queue();
 					return;
 				}
 
@@ -249,12 +241,12 @@ public class GuildMessageEvent extends ListenerAdapter {
 //								channel.sendMessage(buildEmbed("I can't find this person on the server",Color.blue)).queue();
 //								break;
 //							}
-				channel.sendMessage(buildEmbed("<@" + player2 + "> was invited to play TicTacToe, type !accept ttt to join!", Color.blue)).queue();
+				channel.sendMessage(Builder.buildEmbed("<@" + player2 + "> was invited to play TicTacToe, type \n!accept ttt \nto join!", Color.blue)).queue();
 				ticTacToePL.put(player2, caller);
 			}
 			
 		} else if (message[1].equals("stop")) {
-			channel.sendMessage(buildEmbed("This command have no purpose yet", Color.blue)).queue();
+			channel.sendMessage(Builder.buildEmbed("This command have no purpose yet", Color.blue)).queue();
 //						channel.sendMessage(buildEmbed(caller.getAsMention() + ", all your invites are deleted!", Color.blue)).queue();
 //						if(ticTacToePL.containsValue(caller.getId()))
 //							ticTacToePL.remove();
@@ -276,7 +268,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 			else if (ticTacToePL.get(caller.getId()) != null) {
 				channel.sendMessage("Game starts!").queue();
 //						ticTacToePL.remove(caller.getId());
-				playTTT(ticTacToePL.get(caller.getId()).getId(), caller.getId());
+				startTTT(ticTacToePL.get(caller.getId()).getId(), caller.getId());
 			} else
 				channel.sendMessage("<@" + caller.getId() + ">, you haven't been invited to any game").queue();
 		}
@@ -286,7 +278,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 			else if (navalBattlePL.get(caller.getId()) != null) {
 				channel.sendMessage("Game starts!").queue();
 //						ticTacToePL.remove(caller.getId());
-				playNB(navalBattlePL.get(caller.getId()).getId(), caller.getId());
+				startNB(navalBattlePL.get(caller.getId()).getId(), caller.getId());
 			} else
 				channel.sendMessage("<@" + caller.getId() + ">, you haven't been invited to any game").queue();
 		}
@@ -297,7 +289,7 @@ public class GuildMessageEvent extends ListenerAdapter {
 			return;
 		
 		String target = message[1].replaceAll("[<>!@]*", "");
-		playCSGO(target);
+		startCSGO(target);
 
 //					NumbersCSGO obj;
 //					if (csgoHash.containsKey(caller)) {
@@ -322,64 +314,71 @@ public class GuildMessageEvent extends ListenerAdapter {
 		
 		String player2 = message[1].replaceAll("[<>!@]*", "");
 		
-		if (startedNB.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId()))) {
-			channel.sendMessage("You cant invite!").queue();
+		if (caller.getId().equals(player2)) {
+			channel.sendMessage("You can't play with yourself!").queue();
 			return;
 		}
 		
-		if (startedNB.entrySet().stream().anyMatch(entry -> entry.getKey().getPlayer1().equals(player2) || entry.getKey().getPlayer2().equals(player2))) {
-			channel.sendMessage("You cant invite!").queue();
+		if (startedNB.entrySet().stream().anyMatch(entry -> { String pl1=entry.getKey().getPlayer1(), pl2=entry.getKey().getPlayer2();
+			return pl1.equals(caller.getId()) || pl2.equals(caller.getId()) || pl1.equals(player2) || pl2.equals(player2);
+		})) {
+			channel.sendMessage("You cant invite because at least one of the players already in NB game!").queue();
 			return;
 		}
+		
 		if (navalBattlePL.containsKey(player2)) {
-			channel.sendMessage(buildEmbed(caller.getUser().getAsMention() + " you have already sent an invitation to <@" + player2 + ">", Color.blue)).queue();
+			channel.sendMessage(Builder.buildEmbed(caller.getUser().getAsMention() + " you have already sent an invitation to <@" + player2 + ">", Color.blue)).queue();
 			return;
 		}
 		
-		channel.sendMessage(buildEmbed("<@" + player2 + "> was invited to play Naval Battle, type !accept nb to join!", Color.blue)).queue();
+		channel.sendMessage(Builder.buildEmbed("<@" + player2 + "> was invited to play Naval Battle, type \n!accept nb \nto join!", Color.blue)).queue();
 		navalBattlePL.put(player2, caller);
 		
 	}
 	
 	private boolean isBadRequest(String[] message, String command) {
 		if (message.length <= 1) {
-			channel.sendMessage(buildEmbed("Usage: !" + command + " {@PingYourTarget}", Color.BLUE)).queue();
+			channel.sendMessage(Builder.buildEmbed("Usage: !" + command + " {@PingYourTarget}", Color.BLUE)).queue();
 			return true;
 		} else if (!message[1].replaceAll("[<>!@]*", "").matches("\\d*")) {
-			channel.sendMessage(buildEmbed("Usage: !" + command + " {@PingYourTarget}\nWarning: You missed/misspelled 2rd argument!", Color.blue)).queue();
+			channel.sendMessage(Builder.buildEmbed("Usage: !" + command + " {@PingYourTarget}\nWarning: You missed/misspelled 2rd argument!", Color.blue)).queue();
 			return true;
 		} else
 			return false;
 		
 	}
 	
-	private void playNB(String player1, String player2) {
+	private void startNB(String player1, String player2) {
 		navalBattlePL.remove(player2);
 		Players players = new Players(player1, player2);
 		Field nb = new Field(players);
 		startedNB.put(players, nb);
-		channel.sendMessage(buildEmbed(NBStringConverter.convert(nb.getPlayer1Field(), nb.getPlayer2Field()).append("\nplayer<@").append(nb.getCurrentPlayer()).append("> turn").toString(), Color.red)).complete();
+		channel.sendMessage(Builder.buildEmbed(NBStringConverter.convert(nb.getPlayer1Field()).append("\nplayer<@").append(nb.getPlayers().getPlayer1()).append("> field").toString(), Color.red)).queue();
+		channel.sendMessage(Builder.buildEmbed(NBStringConverter.convert(nb.getPlayer2Field()).append("\nplayer<@").append(nb.getPlayers().getPlayer2()).append("> field").toString(), Color.red)).queue();
+		channel.sendMessage("Player <@" + nb.getCurrentPlayer() + "> turn").queue();
 	}
 	
-	public String resumeNB(int x, int y) {
+	public void resumeNB(int x, int y) {
 		
 		Optional<Map.Entry<Players, Field>> game = startedNB.entrySet().stream().filter(entry -> entry.getKey().getPlayer1().equals(caller.getId()) || entry.getKey().getPlayer2().equals(caller.getId())).findAny();
 		if (game.isEmpty())
-			return null;
-		
+			return;
 		Players pl = game.get().getKey();
 		Field nb = game.get().getValue();
-		StringBuilder str = NBStringConverter.convert(nb.getPlayer1Field(), nb.getPlayer2Field());
+		
 		if (!nb.getCurrentPlayer().equals(caller.getId()))
-			str.append("\n<@").append(nb.getCurrentPlayer()).append("> turn");
-		if (!nb.isHit(new Point(x - 1, y - 1))) {
-			return null;
-		}
-		if (nb.gameFinished()) {
-			str.append("\nGame ended with result: ");
-			str.append("<@").append(nb.getCurrentPlayer()).append("> wins!");
+			return;
+		if (!nb.isAvailableToHit(new Point(x - 1, y - 1)))
+			return;
+		String str;
+		if (nb.isHit(new Point(x - 1, y - 1)) && nb.gameFinished()) {
+			str = "\nGame ended with result: <@" + nb.getCurrentPlayer() + "> wins!";
 			startedTTT.remove(pl);
-		}
-		return str.toString();
+		} else
+			str = "Player <@" + nb.getCurrentPlayer() + "> turn";
+		
+		channel.sendMessage(Builder.buildEmbed(NBStringConverter.convert(nb.getPlayer1Field()).append("\nplayer<@").append(nb.getPlayers().getPlayer1()).append("> field").toString(), Color.red)).queue();
+		channel.sendMessage(Builder.buildEmbed(NBStringConverter.convert(nb.getPlayer2Field()).append("\nplayer<@").append(nb.getPlayers().getPlayer2()).append("> field").toString(), Color.red)).queue();
+		channel.sendMessage(str).queue();
 	}
 }
