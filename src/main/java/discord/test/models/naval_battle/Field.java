@@ -82,10 +82,10 @@ public class Field {
 //				player2Field[i][j] = "";
 //	    }
 		for (String[] strings : player1Field) {
-			Arrays.fill(strings, "");
+			Arrays.fill(strings, "0");
 		}
 		for (String[] strings : player2Field) {
-			Arrays.fill(strings, "");
+			Arrays.fill(strings, "0");
 		}
 	}
 	
@@ -195,7 +195,6 @@ public class Field {
 			return true;
 		} else {
 			field[point.getX()][point.getY()] = "*";
-//			fire();
 			if (currentPlayer.equals(players.getPlayer1()))
 				currentPlayer = players.getPlayer2();
 			else
@@ -244,28 +243,19 @@ public class Field {
 			}
 		}
 	}
-
-
-//	private Point roundToLowNumber(double x, double y) {
-//		if (x >= 550)
-//			x -= 550;
-//		x -= 50;
-//		y -= 50;
-//		int i = 0;
-//		for (; x >= 50; i++) {
-//			x -= 50;
-//		}
-//		int j = 0;
-//		for (; y >= 50; j++) {
-//			y -= 50;
-//		}
-//		return new Point(i, j);
-//	}
-
-//	private void fire() {
-//		for (Listener l : listeners)
-//			l.dataChanged();
-//	}
+	
+	public Players getPlayers() {
+		return players;
+	}
+	
+	public boolean isAvailableToHit(Point point){
+		String[][] field;
+		if (currentPlayer.equals(players.getPlayer1()))
+			field = player1Field;
+		else
+			field = player2Field;
+		return !field[point.getX()][point.getY()].equals("X") && !field[point.getX()][point.getY()].equals("*");
+	}
 	
 	public String getSpecCellP2(int x, int y) {
 		return player2Field[x][y];
@@ -278,13 +268,12 @@ public class Field {
 	private Point FindHead(Point[][] points, String[][] field, Point point) {
 		if (points[point.getX()][point.getY()] != null)
 			return points[point.getX()][point.getY()];
-		if (point.getX() - 1 > -1 && field[point.getX() - 1][point.getY()].equals("1")) {
-			int delta = 0;
+		int delta = 0;
+		if (point.getX() - 1 > -1 && (field[point.getX() - 1][point.getY()].equals("1")||field[point.getX() - 1][point.getY()].equals("X"))) {
 			while (points[point.getX() - delta][point.getY()] == null)
 				delta++;
 			return points[point.getX() - delta][point.getY()];
 		} else {
-			int delta = 0;
 			while (points[point.getX()][point.getY() - delta] == null)
 				delta++;
 			return points[point.getX()][point.getY() - delta];
