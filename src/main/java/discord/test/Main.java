@@ -33,17 +33,13 @@ public class Main {
 			String[] strings = scanner.nextLine().strip().split("[\\s=]+");
 			new Bot(strings[strings.length-1]);
 		} catch (FileNotFoundException | NoSuchElementException e) {
-			System.err.println("Error: File token.txt not found.");
+			System.err.println("\nError: File token.txt not found in: "+file.getAbsolutePath() +"\nCreate token.txt if its not created, and write your bot token there");
 			System.exit(0);
 		}
 		catch (LoginException e) {
-			System.err.println("Error: Login Exception. Your bot token isn't working. Check if file token.txt contains your bot token.");
+			System.err.println("\nError: Your bot token isn't working. Make sure that token in token.txt is right");
 			System.exit(0);
 		}
-//		or this
-//
-//		String token="your token here";
-//		new Bot(token);
 	}
 	
 }
