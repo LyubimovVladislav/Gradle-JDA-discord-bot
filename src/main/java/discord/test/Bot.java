@@ -1,13 +1,13 @@
 package discord.test;
 
-import discord.test.eventListeners.PrivateEvent;
+import discord.test.control.PrivateEvent;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import discord.test.eventListeners.BoopEvent;
+import discord.test.control.BoopEvent;
 
 
-import discord.test.eventListeners.GuildMessageEvent;
+import discord.test.control.GuildMessageEvent;
 
 import javax.security.auth.login.LoginException;
 
