@@ -1,20 +1,22 @@
 package discord.test.models.ttt;
 
+import discord.test.models.Players;
+
 import java.util.stream.Stream;
 
 public class TTT {
 	private int[][] hMap;
 	private int winner;
-	private String player1, player2;
+	private Players players;
+//	private String player1, player2;
 	private String currentPl;
 	private StringBuilder graphicalMap;
 	
-	public TTT(String player1, String player2) {
+	public TTT(Players players) {
 		hMap = new int[3][3];
 		winner = 0;
-		this.player1 = player1;
-		this.player2 = player2;
-		currentPl = player1; //can be random
+		this.players = players;
+		currentPl = players.getPlayer1(); //can be random
 		nullifyHMap();
 		winner=0;
 	}
@@ -47,15 +49,15 @@ public class TTT {
 	
 	private void markPos(int i, int j) {
 		int pl;
-		if (currentPl.equals(player1))
+		if (currentPl.equals(players.getPlayer1()))
 			pl = 1;
 		else pl = 2;
 		hMap[i][j] = pl;
 		
-		if(currentPl.equals(player1))
-			currentPl=player2;
+		if(currentPl.equals(players.getPlayer1()))
+			currentPl=players.getPlayer2();
 		else
-			currentPl=player1;
+			currentPl=players.getPlayer1();
 	}
 	
 	public int isGameFinished() {
@@ -101,7 +103,7 @@ public class TTT {
 	}
 	
 	private void makeGraphicalMap() {
-		StringBuilder str = new StringBuilder("<@" + player1 + "> vs <@" + player2 + ">\n");
+		StringBuilder str = new StringBuilder("<@" + players.getPlayer1() + "> vs <@" + players.getPlayer2() + ">\n");
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (hMap[i][j] == 1)
@@ -121,13 +123,7 @@ public class TTT {
 		return graphicalMap;
 	}
 	
-	public String getPlayer1() {
-		return player1;
-	}
-	
-	public String getPlayer2() {
-		return player2;
-	}
+	public Players getPlayers(){ return players; }
 	
 	public String getCurrentPl() {
 		return currentPl;
